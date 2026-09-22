@@ -1,51 +1,37 @@
 #include "Mode.hpp"
-
-#include "Scene.hpp"
 #include "Sound.hpp"
-
+#include "questions.hpp"
 #include <glm/glm.hpp>
+#include <string>
 
-#include <vector>
-#include <deque>
-
-struct PlayMode : Mode {
+struct PlayMode : Mode
+{
 	PlayMode();
 	virtual ~PlayMode();
 
-	//functions called by main loop:
 	virtual bool handle_event(SDL_Event const &, glm::uvec2 const &window_size) override;
 	virtual void update(float elapsed) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
-	//----- game state -----
+	void next_question();
+	void advance();
+	void start_ending();
 
-	//input tracking:
-	struct Button {
-		uint8_t downs = 0;
-		uint8_t pressed = 0;
-	} left, right, down, up;
+	float text_time = 0.0f;
 
-	//local copy of the game scene (so code can change it during gameplay):
-	Scene scene;
-
-	//hexapod leg to wobble:
-	Scene::Transform *hip = nullptr;
-	Scene::Transform *upper_leg = nullptr;
-	Scene::Transform *lower_leg = nullptr;
-	glm::quat hip_base_rotation;
-	glm::quat upper_leg_base_rotation;
-	glm::quat lower_leg_base_rotation;
-	float wobble = 0.0f;
-
-	glm::vec3 get_leg_tip_position();
-
-	//music coming from the tip of the leg (as a demonstration):
-	std::shared_ptr< Sound::PlayingSample > leg_tip_loop;
-
-	//car honk sound:
-	std::shared_ptr< Sound::PlayingSample > honk_oneshot;
-	
-	//camera:
-	Scene::Camera *camera = nullptr;
-
+	int phase = 0;
+	float timer = 0.0f;
+	int q = 0, asker = 0, answers_len = 0;
+	int shown[4] = {0, 0, 0, 0};
+	bool used[23] = {false};
+	int done = 0, burst = 0;
+	int score[3] = {0, 0, 0}, mood[3] = {0, 0, 0};
+	char const *claims[F_COUNT] = {nullptr};
+	std::string caught_line;
+	int contradictions = 0, ending = 0;
+	int intro_i = 0, ending_i = 0, last_glyph = 0, stinger = 0;
+	float stinger_timer = 0.0f;
+	bool talking = false;
+	std::shared_ptr<Sound::PlayingSample> music;
+	char const *name = nullptr;
 };
